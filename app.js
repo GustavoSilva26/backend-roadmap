@@ -1,8 +1,5 @@
-let contraseñaCorrecta = "secreto123";
-let contraseñaIngresada = "secreto123";
+let usuarios = ["Ana", "Pedro", "Juan", "Maria"];
 
-if (contraseñaCorrecta === contraseñaIngresada) {
-  console.log("Inicio de sesión exitoso.");
-} else {
-  console.log("Contraseña incorrecta. Inténtalo de nuevo.");
+for (let i = 0; i < usuarios.length; i++) {
+  console.log("Hola " + usuarios[i]);
 }
