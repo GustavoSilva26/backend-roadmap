@@ -1,23 +1,28 @@
-let producto = {
-  nombre: "Zapatillas",
-  precio: 130,
-  stock: 30,
-};
+// Creamos una función que simula traer datos desde internet (tarda 2 segundos)
+function procesarPagoBanco() {
+  return new Promise((resolve) => {
+    setTimeout(() => {
+      resolve({ estado: "Aprobado", transaccionId: 98765 });
+    }, 3000);
+  });
+}
 
-let productoJSON = JSON.stringify(producto);
+// Para usar 'await' (esperar), la función que la contiene debe tener la palabra 'async'
+async function ejecutarServidor() {
+  console.log("1. Iniciando transacción...");
 
-console.log(
-  "--- Aquí está el archivo enviado como objeto convertido a JSON ---",
-);
-console.log(productoJSON);
-console.log("--------------------------------------------");
+  // Con 'await' le decimos: "Espera a que termine esta función antes de pasar a la siguiente línea"
+  let datosPago = await procesarPagoBanco();
 
-let productoFinal = JSON.parse(productoJSON);
+  console.log("2. ¡Datos recibidos con éxito!");
+  console.log(
+    "Pago " +
+      datosPago.estado +
+      ". Número de transacción: " +
+      datosPago.transaccionId +
+      ".",
+  );
+}
 
-console.log(
-  "El producto " +
-    productoFinal.nombre +
-    " cuesta $" +
-    productoFinal.precio +
-    ".",
-);
+ejecutarServidor();
+console.log("3. Esperando la confirmación del banco...");
