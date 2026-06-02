@@ -1,6 +1,23 @@
-function CalcularTotal(precio, cantidad) {
-  let total = precio * cantidad * 1.18;
-  return total;
-}
+let producto = {
+  nombre: "Zapatillas",
+  precio: 130,
+  stock: 30,
+};
 
-console.log(CalcularTotal(100, 3));
+let productoJSON = JSON.stringify(producto);
+
+console.log(
+  "--- Aquí está el archivo enviado como objeto convertido a JSON ---",
+);
+console.log(productoJSON);
+console.log("--------------------------------------------");
+
+let productoFinal = JSON.parse(productoJSON);
+
+console.log(
+  "El producto " +
+    productoFinal.nombre +
+    " cuesta $" +
+    productoFinal.precio +
+    ".",
+);
