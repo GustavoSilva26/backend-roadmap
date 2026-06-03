@@ -6,6 +6,11 @@ export const validarProducto = (req, res, next) => {
     return res.status(400).json({
       error: "Datos inválidos. El 'nombre' y el 'precio' son obligatorios.",
     });
+  }
+  if (typeof nombre !== "string" || typeof precio !== "number" || precio <= 0) {
+    return res.status(400).json({
+      error: "Los datos ingresados son inválidos.",
+    });
   } else {
     // SI TODO ESTÁ BIEN: Ejecutamos next() para que pase al controlador
     next();
