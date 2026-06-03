@@ -17,8 +17,27 @@ app.get("/", (req, res) => {
   res.json("Bienvenido a mi tienda");
 });
 
+app.get("/productos/baratos", (req, res) => {
+  const productosBaratos = productos.filter(
+    (producto) => producto.precio <= 50,
+  );
+  res.status(200).json(productosBaratos);
+});
+
 app.get("/productos", (req, res) => {
   res.json(productos);
+});
+
+app.get("/productos/:id", (req, res) => {
+  const id = parseInt(req.params.id);
+
+  const productoEncontrado = productos.find((p) => p.id === id);
+
+  if (!productoEncontrado) {
+    return res.status(404).json({ error: "Producto no encontrado" });
+  } else {
+    res.status(200).json(productoEncontrado);
+  }
 });
 
 app.post("/productos", (req, res) => {
