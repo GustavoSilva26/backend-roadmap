@@ -25,13 +25,21 @@ app.get(
 
 app.post(
   "/tareas",
-  validarDatosTarea.validarTareaBody,
+  validarDatosTarea.validarTareaCreada,
   tareasController.crearTarea,
 );
 
-// app.put("/tareas/:id", tareasController.actualizarTarea);
+app.put(
+  "/tareas/:id",
+  validarDatosTarea.validarTareaActualizada,
+  tareasController.actualizarTarea,
+);
 
-// app.delete("/tareas/:id", tareasController.eliminarTarea);
+app.delete(
+  "/tareas/:id",
+  validarDatosTarea.validarTareaId,
+  tareasController.eliminarTarea,
+);
 
 app.listen(PORT, () => {
   console.log(`Servidor escuchando a http://localhost:${PORT}`);

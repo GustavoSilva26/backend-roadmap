@@ -88,6 +88,56 @@ export const crearTarea = async (req, res) => {
   }
 };
 
-// export const actualizarTarea = async (req, res) => {};
+export const actualizarTarea = async (req, res) => {
+  try {
+    const tareas = await leerBD();
+    const id = Number(req.params.id);
 
-// export const eliminarTarea = async (req, res) => {};
+    const tareaIndex = tareas.findIndex((t) => t.id === id);
+
+    if (tareaIndex === -1) {
+      return res.status(404).json({ error: "Tarea no encontrada." });
+    }
+
+    const tareaActualizada = {
+      id: id,
+      titulo: req.body.titulo,
+      completada: req.body.completada,
+      prioridad: req.body.prioridad,
+    };
+
+    tareas[tareaIndex] = tareaActualizada;
+
+    await escribirBD(tareas);
+
+    res.status(200).json(tareaActualizada);
+  } catch (error) {
+    res.status(500).json({
+      error: "Error al leer la base de datos. La tarea no se pudo actualizar.",
+    });
+  }
+};
+
+export const eliminarTarea = async (req, res) => {
+  try {
+    const tareas = await leerBD();
+    const id = Number(req.params.id);
+
+    const tareaFind = tareas.find((t) => t.id === id);
+
+    if (!tareaFind) {
+      return res.status(404).json({
+        error: "La Tarea que desea eliminar no existe.",
+      });
+    }
+
+    const tareaFiltrada = tareas.filter((t) => t.id !== id);
+
+    await escribirBD(tareaFiltrada);
+    res.status(200).json({ mensaje: "Tarea eliminada correctamente" });
+  } catch (error) {
+    res.status(500).json({
+      error: "Error al leer la base de datos. La tarea no se pudo eliminar",
+    });
+  }
+};

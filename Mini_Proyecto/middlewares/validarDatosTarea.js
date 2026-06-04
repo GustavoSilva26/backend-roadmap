@@ -9,8 +9,8 @@ export const validarTareaId = (req, res, next) => {
   next();
 };
 
-export const validarTareaBody = (req, res, next) => {
-  const { titulo, prioridad } = req.body;
+export const validarTareaCreada = (req, res, next) => {
+  const { titulo, completada, prioridad } = req.body;
 
   if (!titulo || !prioridad) {
     return res.status(400).json({
@@ -29,3 +29,19 @@ export const validarTareaBody = (req, res, next) => {
   }
   next();
 };
+
+const validarCampoCompletada = (req, res, next) => {
+  const { completada } = req.body;
+  if (completada !== undefined && typeof completada !== "boolean") {
+    return res.status(400).json({
+      error: "El campo completada debe ser un booleano.",
+    });
+  }
+  next();
+};
+
+export const validarTareaActualizada = [
+  validarTareaId,
+  validarTareaCreada,
+  validarCampoCompletada,
+];
