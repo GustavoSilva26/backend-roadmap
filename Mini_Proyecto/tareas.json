@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "titulo": "Configurar servidor Express",
+    "completada": false,
+    "prioridad": "alta"
+  },
+  {
+    "id": 2,
+    "titulo": "Configurar base de datos",
+    "completada": true,
+    "prioridad": "media"
+  },
+  {
+    "id": 3,
+    "titulo": "Configurar validaciones",
+    "completada": false,
+    "prioridad": "baja"
+  },
+  {
+    "id": 4,
+    "titulo": "Configurar entorno",
+    "completada": false,
+    "prioridad": "alta"
+  },
+  {
+    "id": 5,
+    "titulo": "Configurar visual code",
+    "completada": false,
+    "prioridad": "alta"
+  }
+]
