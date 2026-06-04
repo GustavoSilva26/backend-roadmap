@@ -1,4 +1,4 @@
-export const validarProducto = (req, res, next) => {
+export const validarProductoBody = (req, res, next) => {
   const { nombre, precio } = req.body; //Extraemos el nombre y el precio del cuerpo
 
   // REGLA DE SEGURIDAD: Si no viene el nombre o no viene el precio...
@@ -13,6 +13,16 @@ export const validarProducto = (req, res, next) => {
     });
   } else {
     // SI TODO ESTÁ BIEN: Ejecutamos next() para que pase al controlador
+    next();
+  }
+};
+
+export const validarProductoId = (req, res, next) => {
+  const id = parseInt(req.params.id);
+
+  if (isNaN(id) || id <= 0) {
+    return res.status(400).json({ error: "ID inválido" });
+  } else {
     next();
   }
 };

@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "nombre": "Teclado Mecánico",
+    "precio": 80
+  },
+  {
+    "id": 2,
+    "nombre": "Mouse Gamer",
+    "precio": 40
+  },
+  {
+    "id": 3,
+    "nombre": "Monitor 4k",
+    "precio": 300
+  },
+  {
+    "id": 4,
+    "nombre": "Audífonos Inalámbricos",
+    "precio": 50
+  }
+]

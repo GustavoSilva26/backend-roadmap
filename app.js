@@ -7,7 +7,7 @@ import {
 } from "./controllers/productosController.js";
 
 // Importamos nuestro middleware
-import { validarProducto } from "./validarProducto.js";
+import { validarProductoBody, validarProductoId } from "./validarProducto.js";
 
 const app = express();
 app.use(express.json());
@@ -23,11 +23,11 @@ app.get("/productos/baratos", obtenerProductosBaratos);
 
 app.get("/productos", obtenerProductos);
 
-app.get("/productos/:id", obtenerProductoPorId);
+app.get("/productos/:id", validarProductoId, obtenerProductoPorId);
 
 // 2. ¡LA MAGIA! Ponemos al guardia justo antes de crear el producto
 // Express ejecutará primero 'validarDatosProducto', y si este da luz verde (next), pasará a 'crearProducto'
-app.post("/productos", validarProducto, crearProducto);
+app.post("/productos", validarProductoBody, crearProducto);
 
 app.listen(PORT, () => {
   console.log(`Servidor escuchando en http://localhost:${PORT}`);
