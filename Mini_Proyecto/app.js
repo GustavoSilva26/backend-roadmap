@@ -1,3 +1,4 @@
+import "./db.js";
 import express from "express";
 import * as tareasController from "./controllers/tareasController.js";
 import * as validarDatosTarea from "./middlewares/validarDatosTarea.js";
@@ -17,29 +18,13 @@ app.get("/tareas/urgentes", tareasController.obtenerTareasUrgentes);
 
 app.get("/tareas/pendientes", tareasController.obtenerTareasPendientes);
 
-app.get(
-  "/tareas/:id",
-  validarDatosTarea.validarTareaId,
-  tareasController.obtenerTareaPorId,
-);
+app.get("/tareas/:id", validarDatosTarea.validarTareaId, tareasController.obtenerTareaPorId);
 
-app.post(
-  "/tareas",
-  validarDatosTarea.validarTareaCreada,
-  tareasController.crearTarea,
-);
+app.post("/tareas", validarDatosTarea.validarTareaCreada, tareasController.crearTarea);
 
-app.put(
-  "/tareas/:id",
-  validarDatosTarea.validarTareaActualizada,
-  tareasController.actualizarTarea,
-);
+app.put("/tareas/:id", validarDatosTarea.validarTareaActualizada, tareasController.actualizarTarea);
 
-app.delete(
-  "/tareas/:id",
-  validarDatosTarea.validarTareaId,
-  tareasController.eliminarTarea,
-);
+app.delete("/tareas/:id", validarDatosTarea.validarTareaId, tareasController.eliminarTarea);
 
 app.listen(PORT, () => {
   console.log(`Servidor escuchando a http://localhost:${PORT}`);

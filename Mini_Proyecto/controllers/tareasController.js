@@ -1,22 +1,13 @@
-import fs from "fs/promises";
-
-const ARCHIVO_PATH = "./tareas.json";
-
-const leerBD = async () => {
-  try {
-    return JSON.parse(await fs.readFile(ARCHIVO_PATH, "utf8"));
-  } catch (error) {
-    return [];
-  }
-};
-
-const escribirBD = async (datos) => {
-  await fs.writeFile(ARCHIVO_PATH, JSON.stringify(datos, null, 2), "utf8");
-};
+// Importamos el puente de conexión a la base de datos
+import { pool } from "../db.js";
 
 export const obtenerTareas = async (req, res) => {
   try {
-    res.status(200).json(await leerBD());
+    // 1. Le enviamos la orden SQL a PostgelSQL usando await
+    const resultado = await pool.query("SELECT * FROM tareas");
+
+    // 2. Extraemos únicamente el array de filas (.rows) y respondemos al cliente
+    res.status(200).json(resultado.rows);
   } catch (error) {
     res.status(500).json({ error: "Error al leer la base de datos" });
   }
@@ -24,13 +15,9 @@ export const obtenerTareas = async (req, res) => {
 
 export const obtenerTareasUrgentes = async (req, res) => {
   try {
-    const tareas = await leerBD();
+    const tareasUrgentes = await pool.query("SELECT * FROM tareas WHERE prioridad = 'alta' AND completada = false");
 
-    const tareasUrgentes = tareas.filter(
-      (tarea) => tarea.prioridad === "alta" && tarea.completada === false,
-    );
-
-    res.status(200).json(tareasUrgentes);
+    res.status(200).json(tareasUrgentes.rows);
   } catch (error) {
     res.status(500).json({ error: "Error al leer la base de datos" });
   }
@@ -38,13 +25,9 @@ export const obtenerTareasUrgentes = async (req, res) => {
 
 export const obtenerTareasPendientes = async (req, res) => {
   try {
-    const tareas = await leerBD();
+    const tareasPedientes = await pool.query("SELECT * FROM tareas WHERE completada = false");
 
-    const tareasPedientes = tareas.filter(
-      (tarea) => tarea.completada === false,
-    );
-
-    res.status(200).json(tareasPedientes);
+    res.status(200).json(tareasPedientes.rows);
   } catch (error) {
     res.status(500).json({ error: "Error al leer la base de datos" });
   }
@@ -52,16 +35,17 @@ export const obtenerTareasPendientes = async (req, res) => {
 
 export const obtenerTareaPorId = async (req, res) => {
   try {
-    const tareas = await leerBD();
-    const id = Number(req.params.id);
+    const id = [req.params.id];
+    const query = "SELECT * FROM tareas WHERE id = $1";
+    // const valores = [id];
 
-    const tareaPorId = tareas.find((tarea) => tarea.id === id);
+    const resultado = await pool.query(query, id);
 
-    if (!tareaPorId) {
+    if (resultado.rows[0] === undefined) {
       return res.status(404).json({ error: "Tarea no encontrada" });
     }
 
-    res.status(200).json(tareaPorId);
+    res.status(200).json(resultado.rows[0]);
   } catch (error) {
     res.status(500).json({ error: "Error al leer la base de datos" });
   }
@@ -69,49 +53,40 @@ export const obtenerTareaPorId = async (req, res) => {
 
 export const crearTarea = async (req, res) => {
   try {
-    const tareas = await leerBD();
-    const idNuevo = tareas.length > 0 ? tareas[tareas.length - 1].id + 1 : 1;
+    const { titulo, prioridad } = req.body;
 
-    const nuevaTarea = {
-      id: idNuevo,
-      titulo: req.body.titulo,
-      completada: false,
-      prioridad: req.body.prioridad,
-    };
+    const query = "INSERT INTO tareas (titulo, prioridad) VALUES ($1, $2) RETURNING *";
+    const valores = [titulo, prioridad];
+    const resultado = await pool.query(query, valores);
 
-    tareas.push(nuevaTarea);
+    const nuevaTarea = resultado.rows[0];
 
-    await escribirBD(tareas);
     res.status(201).json(nuevaTarea);
   } catch (error) {
-    res.status(500).json({ error: "Error al leer la base de datos" });
+    console.error("Error al insertar la tarea en Postgres:", error.stack);
+    res.status(500).json({
+      error: "Error interno al guardar en la base de datos.",
+    });
   }
 };
 
 export const actualizarTarea = async (req, res) => {
   try {
-    const tareas = await leerBD();
-    const id = Number(req.params.id);
+    const id = req.params.id;
+    const { titulo, prioridad, completada } = req.body;
 
-    const tareaIndex = tareas.findIndex((t) => t.id === id);
+    const query = "UPDATE tareas SET titulo = $1, prioridad = $2, completada = $3 WHERE id = $4 RETURNING *";
+    const valores = [titulo, prioridad, completada, id];
 
-    if (tareaIndex === -1) {
-      return res.status(404).json({ error: "Tarea no encontrada." });
+    const resultado = await pool.query(query, valores);
+
+    if (resultado.rows[0] === undefined) {
+      res.status(404).json({ error: "Tarea no encontrada" });
+    } else {
+      res.status(200).json(resultado.rows[0]);
     }
-
-    const tareaActualizada = {
-      id: id,
-      titulo: req.body.titulo,
-      completada: req.body.completada,
-      prioridad: req.body.prioridad,
-    };
-
-    tareas[tareaIndex] = tareaActualizada;
-
-    await escribirBD(tareas);
-
-    res.status(200).json(tareaActualizada);
   } catch (error) {
+    console.error("Error al actualizar la tarea en Postgres:", error.stack);
     res.status(500).json({
       error: "Error al leer la base de datos. La tarea no se pudo actualizar.",
     });
@@ -120,21 +95,16 @@ export const actualizarTarea = async (req, res) => {
 
 export const eliminarTarea = async (req, res) => {
   try {
-    const tareas = await leerBD();
-    const id = Number(req.params.id);
+    const id = [req.params.id];
+    const query = "DELETE FROM tareas WHERE id = $1 RETURNING *";
 
-    const tareaFind = tareas.find((t) => t.id === id);
+    const resultado = await pool.query(query, id);
 
-    if (!tareaFind) {
-      return res.status(404).json({
-        error: "La Tarea que desea eliminar no existe.",
-      });
+    if (resultado.rows.length > 0) {
+      res.status(200).json({ mensaje: "Tarea eliminada correctamente" });
+    } else {
+      res.status(404).json({ error: "Tarea no encontrada" });
     }
-
-    const tareaFiltrada = tareas.filter((t) => t.id !== id);
-
-    await escribirBD(tareaFiltrada);
-    res.status(200).json({ mensaje: "Tarea eliminada correctamente" });
   } catch (error) {
     res.status(500).json({
       error: "Error al leer la base de datos. La tarea no se pudo eliminar",
