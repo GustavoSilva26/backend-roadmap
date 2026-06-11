@@ -4,7 +4,7 @@ import { pool } from "../db.js";
 export const obtenerTareas = async (req, res) => {
   try {
     // 1. Le enviamos la orden SQL a PostgelSQL usando await
-    const resultado = await pool.query("SELECT * FROM tareas");
+    const resultado = await pool.query("SELECT * FROM tareas ORDER BY id ASC");
 
     // 2. Extraemos únicamente el array de filas (.rows) y respondemos al cliente
     res.status(200).json(resultado.rows);
